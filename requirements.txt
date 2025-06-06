@@ -1,0 +1,5 @@
+streamlit
+python-dotenv==0.20.0
+together
+langchain==0.0.200
+openai==0.27.0
