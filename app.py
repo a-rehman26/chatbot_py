@@ -2,6 +2,7 @@ import os
 import streamlit as st
 import together
 from dotenv import load_dotenv
+import together
 
 # Load env variables locally
 load_dotenv()
@@ -37,7 +38,8 @@ if user_query and submit_button:
         if not api_key:
             st.error("API Key is not loaded! Please check your .env file or Streamlit secrets.")
         else:
-            client = together.Together(api_key=api_key)
+            client = together.Client(api_key=api_key)  # Agar class ka naam Client hai
+            # client = together.Together(api_key=api_key)
 
             response = client.chat.completions.create(
                 model="deepseek-ai/DeepSeek-V3",
