@@ -1,16 +1,17 @@
 import os
 import streamlit as st
-import together
+from together import Together
 from dotenv import load_dotenv
-import together
 
 # Load env variables locally
 load_dotenv()
 
 # Function to check if the message is programming-related
 def is_programming_query(query):
-    programming_keywords = ['python', 'javascript', 'html', 'css', 'machine learning', 'deep learning',
-                            'ai', 'algorithm', 'data structures', 'react', 'flask', 'django', 'c++', 'c#']
+    programming_keywords = [
+        'python', 'javascript', 'html', 'css', 'machine learning', 'deep learning',
+        'ai', 'algorithm', 'data structures', 'react', 'flask', 'django', 'c++', 'c#'
+    ]
     return any(keyword.lower() in query.lower() for keyword in programming_keywords)
 
 # Streamlit UI setup
@@ -24,35 +25,36 @@ st.markdown("""
     <p style='text-align: center; color: #555;'>Ask any programming-related questions and get answers!</p>
 """, unsafe_allow_html=True)
 
-# User input for query
+# User input
 user_query = st.text_input("Enter your programming question:", "", key="query", placeholder="e.g. How to create a Python function?")
-
-# Submit button
 submit_button = st.button("Get Answer", key="submit", help="Click to get the answer to your programming question")
 
 if user_query and submit_button:
     if is_programming_query(user_query):
-        # Locally from .env, in deployed app from Streamlit secrets
+        # Load API key from .env (local) or Streamlit secrets (deployed)
         api_key = os.getenv("TOGETHER_API_KEY") or st.secrets.get("TOGETHER_API_KEY")
 
         if not api_key:
             st.error("API Key is not loaded! Please check your .env file or Streamlit secrets.")
         else:
-            client = together.Client(api_key=api_key)  # Agar class ka naam Client hai
-            # client = together.Together(api_key=api_key)
+            client = Together(api_key=api_key)  # ✅ Correct class
 
-            response = client.chat.completions.create(
-                model="deepseek-ai/DeepSeek-V3",
-                messages=[{
-                    "role": "user",
-                    "content": user_query
-                }]
-            )
-            st.success(response.choices[0].message.content)
+            try:
+                response = client.chat.completions.create(
+                    model="deepseek-ai/DeepSeek-V3",
+                    messages=[{
+                        "role": "user",
+                        "content": user_query
+                    }]
+                )
+                st.success(response.choices[0].message.content)
+                # st.success(response.choices[0].message["content"])
+            except Exception as e:
+                st.error(f"Error: {e}")
     else:
         st.warning("I am only a programming bot. Please ask programming-related questions.")
 
-# Footer CSS + Markdown
+# Footer
 footer = """
     <style>
         footer {
